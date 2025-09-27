@@ -12,13 +12,14 @@ class GoogleDocsManager:
     def create_feedback_document(self, student_name: str, evaluation_data: Dict[str, Any]) -> Dict[str, str]:
         """Crear documento de feedback en Google Docs (simulado en desarrollo)"""
         if self.dev_mode:
-            # Simular creación de documento
-            doc_id = f"dev_doc_{student_name.replace(' ', '_').lower()}"
-            # En desarrollo, usar una URL local simulada
-            doc_url = f"http://localhost:5000/api/preview-doc/{doc_id}"
+            # Simular creación de documento pero usar URL real de Google Docs
+            doc_id = f"1{''.join([str(i) for i in range(10) if i % 2 == 0])}_dev_{student_name.replace(' ', '_').lower()}"
+            # Usar URL real de Google Docs (aunque no exista el documento)
+            doc_url = f"https://docs.google.com/document/d/{doc_id}/edit"
             
             print(f"📝 [MODO DEV] Documento de feedback creado para {student_name}")
-            print(f"🔗 [MODO DEV] URL simulada: {doc_url}")
+            print(f"🔗 [MODO DEV] URL de Google Docs: {doc_url}")
+            print("⚠️  [MODO DEV] El documento no existe realmente, solo es la URL para demostración")
             
             # Mostrar contenido que se habría incluido
             print("\n📋 Contenido del documento:")

@@ -175,39 +175,7 @@ def get_session_status(session_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/preview-doc/<doc_id>')
-def preview_document(doc_id):
-    """Previsualizar documento en modo desarrollo"""
-    if os.getenv('DEV_MODE') == 'true':
-        # Generar contenido simulado del documento
-        content = f"""
-        <html>
-        <head><title>Documento EDHack IA - {doc_id}</title></head>
-        <body style="font-family: Arial, sans-serif; margin: 40px; line-height: 1.6;">
-            <h1>📝 Documento de Retroalimentación</h1>
-            <p><strong>Documento ID:</strong> {doc_id}</p>
-            <p><strong>Modo:</strong> Desarrollo (Simulado)</p>
-            
-            <h2>📊 Evaluación Automática</h2>
-            <p>Este es un documento simulado para desarrollo. En producción, aquí aparecería el contenido real generado por la IA con la evaluación detallada del texto del estudiante.</p>
-            
-            <h3>Instrucciones para el Docente:</h3>
-            <ul>
-                <li>Revise la evaluación automática</li>
-                <li>Agregue sus comentarios y correcciones</li>
-                <li>Use el botón "Solicitar nueva iteración" en la interfaz</li>
-            </ul>
-            
-            <div style="background: #f0f0f0; padding: 20px; margin: 20px 0; border-left: 4px solid #007bff;">
-                <h4>💡 Nota de Desarrollo</h4>
-                <p>En modo de desarrollo no se conecta a Google Docs real. Este es un contenido simulado para pruebas.</p>
-            </div>
-        </body>
-        </html>
-        """
-        return content
-    else:
-        return redirect(f'https://docs.google.com/document/d/{doc_id}/edit')
+
 
 def generate_session_id():
     """Generar ID único para la sesión"""

@@ -15,13 +15,11 @@ class GoogleDocsManager:
             # Generar contenido de retroalimentación
             feedback_content = self._generate_feedback_content(student_name, evaluation_data)
             
-            # Para demostración, crear un nuevo documento con contenido
-            doc_title = f"EDHack IA - Retroalimentación - {student_name}"
-            
-            # Crear URL con contenido inicial usando Google Apps Script approach
-            # Nota: Google Docs no permite contenido inicial vía URL, pero mostraremos el contenido en consola
-            doc_url = f"https://docs.google.com/document/create?title={doc_title.replace(' ', '%20')}"
+            # Para demostración, crear una página intermedia con el contenido
             doc_id = f"demo_{student_name.replace(' ', '_').lower()}"
+            
+            # URL a nuestra página intermedia que mostrará el contenido y un botón para crear Google Docs
+            doc_url = f"http://localhost:5000/api/feedback-helper/{doc_id}?student={student_name.replace(' ', '%20')}"
             
             print(f"📝 [MODO DEV] Documento de feedback creado para {student_name}")
             print(f"🔗 [MODO DEV] URL de Google Docs: {doc_url}")

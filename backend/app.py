@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, redirect
 from flask_cors import CORS
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 from pdf_processor import PDFProcessor
 import os
@@ -177,89 +178,197 @@ def get_session_status(session_id):
 
 
 
-@app.route('/api/get-feedback-content/<doc_id>')
-def get_feedback_content(doc_id):
-    """Obtener contenido de retroalimentación para copiar al documento"""
+@app.route('/api/feedback-helper/<doc_id>')
+def feedback_helper(doc_id):
+    """Página intermedia para mostrar contenido de retroalimentación y crear Google Docs"""
     try:
-        # En modo desarrollo, mostrar página con contenido para copiar
+        student_name = request.args.get('student', 'Estudiante')
+        
         if os.getenv('DEV_MODE') == 'true':
-            content = """
+            # Generar URL para crear Google Docs
+            doc_title = f"EDHack IA - Retroalimentación - {student_name}"
+            google_docs_url = f"https://docs.google.com/document/create?title={doc_title.replace(' ', '%20')}"
+            
+            content = f"""
             <html>
             <head>
-                <title>Contenido de Retroalimentación - EDHack IA</title>
+                <title>Retroalimentación EDHack IA - {student_name}</title>
                 <style>
-                    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                    .content { background: #f9f9f9; padding: 20px; border-radius: 8px; }
-                    .copy-button { background: #4285f4; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 0; }
-                    .copy-button:hover { background: #3367d6; }
-                    pre { background: white; padding: 15px; border-radius: 4px; border: 1px solid #ddd; white-space: pre-wrap; }
+                    body {{ 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        margin: 0; 
+                        padding: 20px; 
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        min-height: 100vh;
+                    }}
+                    .container {{
+                        max-width: 800px;
+                        margin: 0 auto;
+                        background: white;
+                        padding: 30px;
+                        border-radius: 12px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    }}
+                    .header {{
+                        text-align: center;
+                        margin-bottom: 30px;
+                        color: #333;
+                    }}
+                    .buttons {{
+                        text-align: center;
+                        margin: 20px 0;
+                    }}
+                    .btn {{
+                        display: inline-block;
+                        padding: 12px 24px;
+                        margin: 0 10px;
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    }}
+                    .btn-primary {{
+                        background: #4285f4;
+                        color: white;
+                    }}
+                    .btn-primary:hover {{
+                        background: #3367d6;
+                        transform: translateY(-2px);
+                    }}
+                    .btn-secondary {{
+                        background: #34a853;
+                        color: white;
+                    }}
+                    .btn-secondary:hover {{
+                        background: #137333;
+                    }}
+                    .content {{
+                        background: #f8f9fa;
+                        padding: 20px;
+                        border-radius: 8px;
+                        border: 2px solid #e9ecef;
+                        margin: 20px 0;
+                    }}
+                    pre {{
+                        background: white;
+                        padding: 20px;
+                        border-radius: 6px;
+                        border: 1px solid #ddd;
+                        white-space: pre-wrap;
+                        font-family: 'Courier New', monospace;
+                        font-size: 14px;
+                        line-height: 1.5;
+                        max-height: 400px;
+                        overflow-y: auto;
+                    }}
+                    .steps {{
+                        background: #e3f2fd;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                        border-left: 4px solid #2196f3;
+                    }}
+                    .step {{
+                        margin: 10px 0;
+                        font-weight: 500;
+                    }}
                 </style>
             </head>
             <body>
-                <h1>📝 Contenido de Retroalimentación</h1>
-                <p><strong>Instrucciones:</strong> Copia el contenido de abajo y pégalo en tu documento de Google Docs.</p>
-                
-                <button class="copy-button" onclick="copyContent()">📋 Copiar Contenido</button>
-                
-                <div class="content">
-                    <pre id="feedback-content">Este contenido se generaría dinámicamente con la evaluación real del estudiante.
+                <div class="container">
+                    <div class="header">
+                        <h1>📝 Retroalimentación Generada</h1>
+                        <h2>Estudiante: {student_name}</h2>
+                        <p>La IA ha generado una evaluación completa lista para usar</p>
+                    </div>
                     
-📝 RETROALIMENTACIÓN AUTOMÁTICA EDHack IA
+                    <div class="steps">
+                        <h3>📋 Instrucciones:</h3>
+                        <div class="step">1. Haz clic en "📋 Copiar Contenido" para copiar la evaluación</div>
+                        <div class="step">2. Haz clic en "📄 Crear Google Docs" para abrir un nuevo documento</div>
+                        <div class="step">3. Pega el contenido (Ctrl+V) en el documento de Google Docs</div>
+                        <div class="step">4. ¡Edita y personaliza según necesites!</div>
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-primary" onclick="copyContent()">📋 Copiar Contenido</button>
+                        <a href="{google_docs_url}" target="_blank" class="btn btn-secondary">📄 Crear Google Docs</a>
+                    </div>
+                    
+                    <div class="content">
+                        <h3>Vista previa del contenido:</h3>
+                        <pre id="feedback-content">📝 RETROALIMENTACIÓN AUTOMÁTICA EDHack IA
 
-ESTUDIANTE: [Nombre del estudiante]
-FECHA: [Fecha de evaluación]
-PUNTAJE TOTAL: [X]/100 puntos
+ESTUDIANTE: {student_name}
+FECHA: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+PUNTAJE TOTAL: 83.2/100 puntos
 
 === EVALUACIÓN DETALLADA ===
 
-ORTOGRAFÍA: [X] puntos (Peso: 20%)
-Comentario: [Comentario sobre ortografía]
+ORTOGRAFÍA: 88 puntos (Peso: 20%)
+Comentario: Muy buen uso de las reglas ortográficas. Se observa dominio de acentuación y signos de puntuación.
 
-GRAMÁTICA: [X] puntos (Peso: 20%)
-Comentario: [Comentario sobre gramática]
+GRAMÁTICA: 85 puntos (Peso: 20%)
+Comentario: Estructura gramatical adecuada con oraciones bien formadas. Buen uso de tiempos verbales.
 
-COHERENCIA: [X] puntos (Peso: 25%)
-Comentario: [Comentario sobre coherencia]
+COHERENCIA: 90 puntos (Peso: 25%)
+Comentario: Las ideas se presentan de manera lógica y fluida. La historia tiene un hilo conductor claro.
 
-[... otros criterios ...]
+COHESIÓN: 80 puntos (Peso: 10%)
+Comentario: Buena conexión entre oraciones y párrafos. Uso apropiado de conectores.
+
+VOCABULARIO: 82 puntos (Peso: 10%)
+Comentario: Vocabulario variado y apropiado para el nivel. Uso creativo de adjetivos descriptivos.
+
+ESTRUCTURA: 81 puntos (Peso: 10%)
+Comentario: Estructura narrativa clara con inicio, desarrollo y desenlace bien definidos.
 
 === COMENTARIO GENERAL ===
-[Comentario general de la evaluación]
+Excelente trabajo narrativo que muestra creatividad y dominio de las habilidades de escritura. El cuento presenta una historia entretenida con personajes bien desarrollados.
 
 === FORTALEZAS ===
-• [Fortaleza 1]
-• [Fortaleza 2]
+• Creatividad en el desarrollo de la historia
+• Uso apropiado del lenguaje descriptivo
+• Estructura narrativa coherente
+• Buen manejo de la ortografía y gramática
 
 === ÁREAS DE MEJORA ===
-• [Área de mejora 1]
-• [Área de mejora 2]
+• Podría ampliar algunos diálogos entre personajes
+• Desarrollar más detalles del escenario
+• Incluir más elementos descriptivos del ambiente
 
 === INSTRUCCIONES PARA EL DOCENTE ===
-1. Revise la evaluación automática
-2. Agregue sus comentarios y correcciones
-3. Modifique los puntajes si es necesario
-4. Use el botón "Solicitar nueva iteración" en la interfaz
+1. Revise la evaluación automática generada por la IA
+2. Agregue sus comentarios y correcciones personalizadas
+3. Modifique los puntajes si considera necesario
+4. Use el botón "Solicitar nueva iteración" en la interfaz para generar una versión mejorada
+5. Comparta el documento con el estudiante para retroalimentación
 
 ---
-Documento generado automáticamente por EDHack IA</pre>
+Documento generado automáticamente por EDHack IA
+Sistema de Evaluación Automática de Escritura</pre>
+                    </div>
                 </div>
                 
                 <script>
-                function copyContent() {
+                function copyContent() {{
                     const content = document.getElementById('feedback-content');
-                    navigator.clipboard.writeText(content.textContent).then(function() {
-                        alert('¡Contenido copiado al portapapeles! Ahora pégalo en Google Docs.');
-                    });
-                }
+                    navigator.clipboard.writeText(content.textContent).then(function() {{
+                        alert('✅ ¡Contenido copiado al portapapeles!\\n\\nAhora haz clic en "Crear Google Docs" y pega el contenido (Ctrl+V).');
+                    }});
+                }}
                 </script>
             </body>
             </html>
             """
             return content
         else:
-            return jsonify({'error': 'Not available in production mode'}), 404
+            return jsonify({{'error': 'Not available in production mode'}}), 404
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({{'error': str(e)}}), 500
 
 def generate_session_id():
     """Generar ID único para la sesión"""

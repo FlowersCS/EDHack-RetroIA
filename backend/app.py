@@ -177,6 +177,90 @@ def get_session_status(session_id):
 
 
 
+@app.route('/api/get-feedback-content/<doc_id>')
+def get_feedback_content(doc_id):
+    """Obtener contenido de retroalimentación para copiar al documento"""
+    try:
+        # En modo desarrollo, mostrar página con contenido para copiar
+        if os.getenv('DEV_MODE') == 'true':
+            content = """
+            <html>
+            <head>
+                <title>Contenido de Retroalimentación - EDHack IA</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                    .content { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+                    .copy-button { background: #4285f4; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 0; }
+                    .copy-button:hover { background: #3367d6; }
+                    pre { background: white; padding: 15px; border-radius: 4px; border: 1px solid #ddd; white-space: pre-wrap; }
+                </style>
+            </head>
+            <body>
+                <h1>📝 Contenido de Retroalimentación</h1>
+                <p><strong>Instrucciones:</strong> Copia el contenido de abajo y pégalo en tu documento de Google Docs.</p>
+                
+                <button class="copy-button" onclick="copyContent()">📋 Copiar Contenido</button>
+                
+                <div class="content">
+                    <pre id="feedback-content">Este contenido se generaría dinámicamente con la evaluación real del estudiante.
+                    
+📝 RETROALIMENTACIÓN AUTOMÁTICA EDHack IA
+
+ESTUDIANTE: [Nombre del estudiante]
+FECHA: [Fecha de evaluación]
+PUNTAJE TOTAL: [X]/100 puntos
+
+=== EVALUACIÓN DETALLADA ===
+
+ORTOGRAFÍA: [X] puntos (Peso: 20%)
+Comentario: [Comentario sobre ortografía]
+
+GRAMÁTICA: [X] puntos (Peso: 20%)
+Comentario: [Comentario sobre gramática]
+
+COHERENCIA: [X] puntos (Peso: 25%)
+Comentario: [Comentario sobre coherencia]
+
+[... otros criterios ...]
+
+=== COMENTARIO GENERAL ===
+[Comentario general de la evaluación]
+
+=== FORTALEZAS ===
+• [Fortaleza 1]
+• [Fortaleza 2]
+
+=== ÁREAS DE MEJORA ===
+• [Área de mejora 1]
+• [Área de mejora 2]
+
+=== INSTRUCCIONES PARA EL DOCENTE ===
+1. Revise la evaluación automática
+2. Agregue sus comentarios y correcciones
+3. Modifique los puntajes si es necesario
+4. Use el botón "Solicitar nueva iteración" en la interfaz
+
+---
+Documento generado automáticamente por EDHack IA</pre>
+                </div>
+                
+                <script>
+                function copyContent() {
+                    const content = document.getElementById('feedback-content');
+                    navigator.clipboard.writeText(content.textContent).then(function() {
+                        alert('¡Contenido copiado al portapapeles! Ahora pégalo en Google Docs.');
+                    });
+                }
+                </script>
+            </body>
+            </html>
+            """
+            return content
+        else:
+            return jsonify({'error': 'Not available in production mode'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 def generate_session_id():
     """Generar ID único para la sesión"""
     import uuid

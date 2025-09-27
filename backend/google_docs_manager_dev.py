@@ -12,29 +12,27 @@ class GoogleDocsManager:
     def create_feedback_document(self, student_name: str, evaluation_data: Dict[str, Any]) -> Dict[str, str]:
         """Crear documento de feedback en Google Docs (simulado en desarrollo)"""
         if self.dev_mode:
-            # Para demostración, crear un nuevo documento en blanco de Google Docs
-            # Esta URL permite al usuario crear un nuevo documento con un título específico
+            # Generar contenido de retroalimentación
+            feedback_content = self._generate_feedback_content(student_name, evaluation_data)
+            
+            # Para demostración, crear un nuevo documento con contenido
             doc_title = f"EDHack IA - Retroalimentación - {student_name}"
+            
+            # Crear URL con contenido inicial usando Google Apps Script approach
+            # Nota: Google Docs no permite contenido inicial vía URL, pero mostraremos el contenido en consola
             doc_url = f"https://docs.google.com/document/create?title={doc_title.replace(' ', '%20')}"
             doc_id = f"demo_{student_name.replace(' ', '_').lower()}"
             
             print(f"📝 [MODO DEV] Documento de feedback creado para {student_name}")
             print(f"🔗 [MODO DEV] URL de Google Docs: {doc_url}")
-            print("✅ [MODO DEV] Esta URL creará un nuevo documento de Google Docs para demostración")
-            
-            # Mostrar contenido que se habría incluido
-            print("\n📋 Contenido del documento:")
-            print(f"Estudiante: {student_name}")
-            print(f"Fecha: {evaluation_data.get('timestamp', 'N/A')}")
-            print(f"Puntuación total: {evaluation_data.get('total_score', 'N/A')}/100")
-            
-            if 'scores' in evaluation_data:
-                print("\nDetalles por criterio:")
-                for criterion, score in evaluation_data['scores'].items():
-                    print(f"  - {criterion}: {score}")
-            
-            if 'feedback' in evaluation_data:
-                print(f"\nComentarios: {evaluation_data['feedback'][:200]}...")
+            print("✅ [MODO DEV] Esta URL creará un nuevo documento de Google Docs")
+            print("\n" + "="*60)
+            print("📋 CONTENIDO PARA COPIAR AL DOCUMENTO:")
+            print("="*60)
+            print(feedback_content)
+            print("="*60)
+            print("ℹ️  Copia este contenido y pégalo en el documento de Google Docs que se abrirá")
+            print("="*60)
             
             return {
                 'document_id': doc_id,
@@ -44,6 +42,58 @@ class GoogleDocsManager:
         else:
             # Aquí iría la implementación real con OAuth
             raise NotImplementedError("OAuth implementation needed for production mode")
+    
+    def _generate_feedback_content(self, student_name: str, evaluation_data: Dict[str, Any]) -> str:
+        """Generar contenido de retroalimentación formateado"""
+        content = f"""
+📝 RETROALIMENTACIÓN AUTOMÁTICA EDHack IA
+
+ESTUDIANTE: {student_name}
+FECHA: {evaluation_data.get('timestamp', 'N/A')}
+PUNTAJE TOTAL: {evaluation_data.get('puntaje_total', 'N/A')}/100
+
+=== EVALUACIÓN DETALLADA ===
+"""
+        
+        # Agregar criterios de evaluación
+        if 'criterios' in evaluation_data:
+            for criterio, data in evaluation_data['criterios'].items():
+                content += f"""
+{criterio.upper()}: {data.get('puntaje', 'N/A')} puntos (Peso: {data.get('peso', 'N/A')}%)
+Comentario: {data.get('comentario', 'Sin comentario')}
+"""
+        
+        # Agregar comentario general
+        if 'comentario_general' in evaluation_data:
+            content += f"""
+=== COMENTARIO GENERAL ===
+{evaluation_data['comentario_general']}
+"""
+        
+        # Agregar fortalezas
+        if 'fortalezas' in evaluation_data:
+            content += "\n=== FORTALEZAS ===\n"
+            for fortaleza in evaluation_data['fortalezas']:
+                content += f"• {fortaleza}\n"
+        
+        # Agregar áreas de mejora
+        if 'areas_mejora' in evaluation_data:
+            content += "\n=== ÁREAS DE MEJORA ===\n"
+            for area in evaluation_data['areas_mejora']:
+                content += f"• {area}\n"
+        
+        content += """
+=== INSTRUCCIONES PARA EL DOCENTE ===
+1. Revise la evaluación automática
+2. Agregue sus comentarios y correcciones
+3. Modifique los puntajes si es necesario
+4. Use el botón "Solicitar nueva iteración" en la interfaz para generar una versión mejorada
+
+---
+Documento generado automáticamente por EDHack IA
+"""
+        
+        return content
     
     def update_document_permissions(self, document_id: str, email: str = None) -> bool:
         """Actualizar permisos del documento (simulado en desarrollo)"""

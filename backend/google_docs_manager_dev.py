@@ -12,14 +12,15 @@ class GoogleDocsManager:
     def create_feedback_document(self, student_name: str, evaluation_data: Dict[str, Any]) -> Dict[str, str]:
         """Crear documento de feedback en Google Docs (simulado en desarrollo)"""
         if self.dev_mode:
-            # Simular creación de documento pero usar URL real de Google Docs
-            doc_id = f"1{''.join([str(i) for i in range(10) if i % 2 == 0])}_dev_{student_name.replace(' ', '_').lower()}"
-            # Usar URL real de Google Docs (aunque no exista el documento)
-            doc_url = f"https://docs.google.com/document/d/{doc_id}/edit"
+            # Para demostración, crear un nuevo documento en blanco de Google Docs
+            # Esta URL permite al usuario crear un nuevo documento con un título específico
+            doc_title = f"EDHack IA - Retroalimentación - {student_name}"
+            doc_url = f"https://docs.google.com/document/create?title={doc_title.replace(' ', '%20')}"
+            doc_id = f"demo_{student_name.replace(' ', '_').lower()}"
             
             print(f"📝 [MODO DEV] Documento de feedback creado para {student_name}")
             print(f"🔗 [MODO DEV] URL de Google Docs: {doc_url}")
-            print("⚠️  [MODO DEV] El documento no existe realmente, solo es la URL para demostración")
+            print("✅ [MODO DEV] Esta URL creará un nuevo documento de Google Docs para demostración")
             
             # Mostrar contenido que se habría incluido
             print("\n📋 Contenido del documento:")

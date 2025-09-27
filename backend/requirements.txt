@@ -1,0 +1,26 @@
+# Dependencias principales para el backend
+flask==2.3.3
+flask-cors==4.0.0
+
+# PDF Processing
+PyMuPDF==1.23.5
+pdfplumber==0.9.0
+
+# Google APIs
+google-api-python-client==2.100.0
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+
+# AI - Gemini
+google-generativeai==0.2.2
+
+# Template engine
+Jinja2==3.1.2
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Development and testing
+pytest==7.4.2
+pytest-flask==1.2.0

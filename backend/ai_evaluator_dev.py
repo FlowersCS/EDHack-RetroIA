@@ -101,7 +101,7 @@ class AIEvaluator:
             # Calcular puntaje total ponderado
             total = 0
             for criterio, data in evaluation['criterios'].items():
-                total += data['puntaje'] * data['peso'] / 100
+                total += data['puntaje'] * (data['peso'] / 100)
             evaluation['puntaje_total'] = round(total, 1)
             
             print(f"✅ Evaluación completada - Puntaje total: {evaluation['puntaje_total']}/100")

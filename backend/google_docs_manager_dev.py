@@ -14,7 +14,8 @@ class GoogleDocsManager:
         if self.dev_mode:
             # Simular creación de documento
             doc_id = f"dev_doc_{student_name.replace(' ', '_').lower()}"
-            doc_url = f"https://docs.google.com/document/d/{doc_id}/edit"
+            # En desarrollo, usar una URL local simulada
+            doc_url = f"http://localhost:5000/api/preview-doc/{doc_id}"
             
             print(f"📝 [MODO DEV] Documento de feedback creado para {student_name}")
             print(f"🔗 [MODO DEV] URL simulada: {doc_url}")
@@ -56,6 +57,15 @@ class GoogleDocsManager:
         """Obtener contenido del documento (simulado en desarrollo)"""
         if self.dev_mode:
             print(f"📖 [MODO DEV] Obteniendo contenido del documento {document_id}")
-            return f"[CONTENIDO SIMULADO] Documento ID: {document_id}"
+            return f"[CONTENIDO SIMULADO] Documento ID: {document_id} - Correcciones del docente aplicadas"
+        else:
+            raise NotImplementedError("OAuth implementation needed for production mode")
+    
+    def update_document(self, document_id: str, new_content: str) -> bool:
+        """Actualizar contenido del documento (simulado en desarrollo)"""
+        if self.dev_mode:
+            print(f"✏️  [MODO DEV] Actualizando documento {document_id}")
+            print(f"📝 [MODO DEV] Nuevo contenido (primeros 200 chars): {new_content[:200]}...")
+            return True
         else:
             raise NotImplementedError("OAuth implementation needed for production mode")

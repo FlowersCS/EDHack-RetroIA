@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -16,7 +16,12 @@ from report_generator import ReportGenerator
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Para desarrollo local
+# Configurar CORS para producción
+CORS(app, origins=[
+    "http://localhost:3000",  # Desarrollo
+    "https://tu-frontend-vercel.vercel.app",  # Reemplazar con tu URL de Vercel
+    "https://*.vercel.app"  # Permite todos los subdominios de Vercel
+])  # Para desarrollo local
 
 # Configuración
 app.config['UPLOAD_FOLDER'] = '../uploads'
@@ -86,13 +91,22 @@ def evaluate_text():
         student_name = data.get('student_name', 'Estudiante')
         
         # Crear documento Google Docs
-        doc_id = docs_manager.create_feedback_document(student_name, evaluation)
+        doc_result = docs_manager.create_feedback_document(student_name, evaluation)
+        
+        # Extraer doc_id e URL del resultado
+        if isinstance(doc_result, dict):
+            doc_id = doc_result.get('document_id')
+            doc_url = doc_result.get('document_url')
+        else:
+            # Fallback para compatibilidad
+            doc_id = doc_result
+            doc_url = f'https://docs.google.com/document/d/{doc_id}/edit'
         
         return jsonify({
             'success': True,
             'evaluation': evaluation,
             'google_doc_id': doc_id,
-            'google_doc_url': f'https://docs.google.com/document/d/{doc_id}/edit'
+            'google_doc_url': doc_url
         })
     
     except Exception as e:
@@ -147,6 +161,40 @@ def get_session_status(session_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/preview-doc/<doc_id>')
+def preview_document(doc_id):
+    """Previsualizar documento en modo desarrollo"""
+    if os.getenv('DEV_MODE') == 'true':
+        # Generar contenido simulado del documento
+        content = f"""
+        <html>
+        <head><title>Documento EDHack IA - {doc_id}</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 40px; line-height: 1.6;">
+            <h1>📝 Documento de Retroalimentación</h1>
+            <p><strong>Documento ID:</strong> {doc_id}</p>
+            <p><strong>Modo:</strong> Desarrollo (Simulado)</p>
+            
+            <h2>📊 Evaluación Automática</h2>
+            <p>Este es un documento simulado para desarrollo. En producción, aquí aparecería el contenido real generado por la IA con la evaluación detallada del texto del estudiante.</p>
+            
+            <h3>Instrucciones para el Docente:</h3>
+            <ul>
+                <li>Revise la evaluación automática</li>
+                <li>Agregue sus comentarios y correcciones</li>
+                <li>Use el botón "Solicitar nueva iteración" en la interfaz</li>
+            </ul>
+            
+            <div style="background: #f0f0f0; padding: 20px; margin: 20px 0; border-left: 4px solid #007bff;">
+                <h4>💡 Nota de Desarrollo</h4>
+                <p>En modo de desarrollo no se conecta a Google Docs real. Este es un contenido simulado para pruebas.</p>
+            </div>
+        </body>
+        </html>
+        """
+        return content
+    else:
+        return redirect(f'https://docs.google.com/document/d/{doc_id}/edit')
+
 def generate_session_id():
     """Generar ID único para la sesión"""
     import uuid
@@ -162,5 +210,7 @@ if __name__ == '__main__':
     # Crear directorio de uploads si no existe
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
-    # Ejecutar en modo desarrollo
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    # Para producción en Railway/Render
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

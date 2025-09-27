@@ -11,12 +11,25 @@ import sys
 backend_dir = os.path.join(os.path.dirname(__file__), 'backend')
 sys.path.insert(0, backend_dir)
 
-# Cambiar al directorio backend
+# Cambiar al directorio backend para que las rutas relativas funcionen
 os.chdir(backend_dir)
 
-# Importar y ejecutar la aplicación
-from app import app
+# Configurar variables de entorno necesarias
+os.environ['DEV_MODE'] = 'true'
+os.environ['FLASK_ENV'] = 'production'
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+# Importar y ejecutar la aplicación
+try:
+    from app import app
+    print("✅ App importada correctamente")
+    
+    if __name__ == '__main__':
+        port = int(os.environ.get('PORT', 5000))
+        print(f"🚀 Iniciando servidor en puerto {port}")
+        app.run(host='0.0.0.0', port=port, debug=False)
+        
+except Exception as e:
+    print(f"❌ Error al importar o iniciar la app: {e}")
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)

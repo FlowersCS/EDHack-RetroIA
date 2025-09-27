@@ -86,7 +86,7 @@ class ReportGenerator:
                 data['areas_mejora'] = []
             
             # Extraer comentario general
-            comentario_match = re.search(r'COMENTARIO GENERAL:\s*([^\n---]+)', feedback_text, re.DOTALL)
+            comentario_match = re.search(r'COMENTARIO GENERAL:\s*([^---]+)', feedback_text, re.DOTALL)
             if comentario_match:
                 data['comentario_general'] = comentario_match.group(1).strip()
             else:

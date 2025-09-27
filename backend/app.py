@@ -24,7 +24,8 @@ CORS(app, origins=[
 ])  # Para desarrollo local
 
 # Configuración
-app.config['UPLOAD_FOLDER'] = '../uploads'
+upload_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+app.config['UPLOAD_FOLDER'] = upload_folder
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Inicializar servicios
@@ -132,17 +133,30 @@ def approve_feedback():
                 'final_report': report
             })
         else:
-            # Obtener feedback corregido y re-evaluar
-            corrected_feedback = docs_manager.get_document_content(doc_id)
-            new_evaluation = ai_evaluator.re_evaluate_with_corrections(corrected_feedback)
-            
-            # Actualizar documento
-            docs_manager.update_document(doc_id, new_evaluation)
+            try:
+                # Obtener feedback corregido y re-evaluar
+                corrected_feedback = docs_manager.get_document_content(doc_id)
+                print(f"🔍 [DEBUG] Feedback corregido recibido: {type(corrected_feedback)}")
+                
+                new_evaluation = ai_evaluator.re_evaluate_with_corrections(corrected_feedback)
+                print(f"🔍 [DEBUG] Nueva evaluación generada: {type(new_evaluation)}")
+                
+                # Actualizar documento
+                docs_manager.update_document(doc_id, str(new_evaluation))
+            except Exception as e:
+                print(f"❌ [ERROR] Error en re-evaluación: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                return jsonify({'error': f'Error in re-evaluation: {str(e)}'}), 500
             
             return jsonify({
                 'success': True,
                 'message': 'Feedback updated with corrections',
-                'updated_evaluation': new_evaluation
+                'updated_evaluation': {
+                    'puntaje_total': new_evaluation.get('puntaje_total', 0),
+                    'timestamp': new_evaluation.get('timestamp'),
+                    'type': new_evaluation.get('type', 'correction_iteration')
+                }
             })
     
     except Exception as e:
